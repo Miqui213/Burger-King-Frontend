@@ -20,20 +20,49 @@
             padding: 20px;
         }
 
+        /* --- NUEVO ESTILO PARA LA CABECERA Y BOTÓN DE SESIÓN --- */
         header {
-            text-align: center;
-            padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
             background-color: white;
             border-radius: 12px;
             margin-bottom: 30px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
+        .header-title {
+            text-align: left;
+        }
+
         header h1 {
             color: var(--rojo-burger);
             margin: 0;
-            font-size: 2.5rem;
+            font-size: 2rem;
         }
+
+        header p {
+            margin: 5px 0 0 0;
+            color: #666;
+        }
+
+        .btn-sesion {
+            background-color: transparent;
+            color: var(--rojo-burger);
+            border: 2px solid var(--rojo-burger);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-sesion:hover {
+            background-color: var(--rojo-burger);
+            color: white;
+        }
+        /* ----------------------------------------------------- */
 
         .grid-catalogo {
             display: grid;
@@ -102,14 +131,42 @@
 <body>
 
     <header>
-        <h1>Burger King Cloud (Mock)</h1>
-        <p>Catálogo de demostración para la arquitectura Step Functions</p>
+        <div class="header-title">
+            <h1>🍔 Burger King Cloud (Mock)</h1>
+            <p>Catálogo de demostración para la arquitectura Step Functions</p>
+        </div>
+        <div id="contenedor-sesion">
+            <button class="btn-sesion" onclick="window.location.href='login.html'">Iniciar Sesión</button>
+        </div>
     </header>
 
     <div id="contenedor-menu" class="grid-catalogo">
         </div>
 
     <script>
+        // ================= GESTIÓN DE SESIÓN =================
+        function verificarSesion() {
+            const token = localStorage.getItem("burger_token");
+            const usuario = localStorage.getItem("burger_usuario");
+            const contenedorSesion = document.getElementById("contenedor-sesion");
+
+            if (token && usuario) {
+                // Si está logueado, cambiamos el botón para que diga Hola y permita cerrar sesión
+                contenedorSesion.innerHTML = `
+                    <span style="margin-right: 15px; font-weight: bold; color: #333;">Hola, ${usuario}</span>
+                    <button class="btn-sesion" onclick="cerrarSesion()">Cerrar Sesión</button>
+                `;
+            }
+        }
+
+        function cerrarSesion() {
+            // Borramos los datos del navegador y recargamos la página
+            localStorage.removeItem("burger_token");
+            localStorage.removeItem("burger_usuario");
+            window.location.reload();
+        }
+
+        // ================= DATOS MOCK =================
         const menuMock = [
             {
                 id: "P001",
@@ -121,7 +178,7 @@
             {
                 id: "P002",
                 nombre: "Whopper Doble",
-                descripcion: "Doble porción de carne de res a la parrilla con todos los ingredientes clásicos de la Whopper.",
+                descripcion: "Doble porción de carne a la parrilla con todos los ingredientes clásicos de la Whopper.",
                 precio: 21.90,
                 imagen_url: "https://s3-eu-central-1.amazonaws.com/www.burgerking.com.pe/wp-media-folder-burger-king-peru//home/ubuntu/preview/menu-app/frontend/apps/marketing-website-wordpress-app/web/app/uploads/sites/6/Doble-Whopper.png"
             },
@@ -141,10 +198,10 @@
             }
         ];
 
-        // ================= LÓGICA DEL FRONTEND =================
+        // ================= LÓGICA DEL CATÁLOGO =================
         function pintarMenu() {
             const contenedor = document.getElementById("contenedor-menu");
-            contenedor.innerHTML = "";
+            contenedor.innerHTML = ""; 
 
             menuMock.forEach(prod => {
                 const tarjeta = document.createElement("div");
@@ -168,9 +225,18 @@
         }
 
         function simularPedido(idProducto, nombreProducto) {
-            alert(`¡Has seleccionado: ${nombreProducto}! \n\nEn la versión final, esto dispararía el evento hacia AWS Step Functions para iniciar el flujo de la cocina.`);
+            const token = localStorage.getItem("burger_token");
+            
+            if (!token) {
+                alert("⚠️ Tienes que iniciar sesión primero para hacer un pedido.");
+                window.location.href = "login.html"; 
+                return;
+            }
+
+            alert(`¡Has seleccionado: ${nombreProducto}! \n\nEsto dispara el evento en AWS Step Functions.`);
         }
 
+        verificarSesion();
         pintarMenu();
     </script>
 </body>

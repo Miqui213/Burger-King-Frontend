@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burger King Cloud - Acceso</title>
+    <style>
+        :root {
+            --rojo-burger: #D62300;
+            --fondo: #F4F4F4;
+            --texto: #333333;
+            --borde: #ccc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--fondo);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .auth-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .auth-container h1 {
+            color: var(--rojo-burger);
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--fondo);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #777;
+            transition: 0.3s;
+        }
+
+        .tab.active {
+            color: var(--rojo-burger);
+            border-bottom: 3px solid var(--rojo-burger);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--borde);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        .btn-submit {
+            background-color: var(--rojo-burger);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+
+        .btn-submit:hover {
+            background-color: #a81c00;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        #mensaje-alerta {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <h1>Burger King</h1>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="cambiarTab('login')">Iniciar Sesión</div>
+            <div class="tab" onclick="cambiarTab('registro')">Registrarse</div>
+        </div>
+
+        <div id="form-login" class="form-section active">
+            <div class="form-group">
+                <label>Usuario (ID)</label>
+                <input type="text" id="login-usuario" placeholder="Ej: miguel123">
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="login-password" placeholder="••••••••">
+            </div>
+            <button class="btn-submit" onclick="ejecutarLogin()">Entrar al Sistema</button>
+        </div>
+
+        <div id="form-registro" class="form-section">
+            <div class="form-group">
+                <label>Nuevo Usuario (ID)</label>
+                <input type="text" id="reg-usuario" placeholder="Crea un nombre de usuario">
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="reg-password" placeholder="Crea una contraseña segura">
+            </div>
+            <div class="form-group">
+                <label>Nombre Completo</label>
+                <input type="text" id="reg-nombre" placeholder="Ej: Miguel Espinoza">
+            </div>
+            <button class="btn-submit" onclick="ejecutarRegistro()">Crear Cuenta</button>
+        </div>
+
+        <div id="mensaje-alerta"></div>
+    </div>
+
+    <script>
+        const API_AUTH_URL = "https://j6fn7s0879.execute-api.us-east-1.amazonaws.com";
+
+        function cambiarTab(modo) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
+            
+            if(modo === 'login') {
+                document.querySelector('.tabs .tab:nth-child(1)').classList.add('active');
+                document.getElementById('form-login').classList.add('active');
+            } else {
+                document.querySelector('.tabs .tab:nth-child(2)').classList.add('active');
+                document.getElementById('form-registro').classList.add('active');
+            }
+            mostrarMensaje("", "black");
+        }
+
+        function mostrarMensaje(texto, color) {
+            const divMensaje = document.getElementById("mensaje-alerta");
+            divMensaje.textContent = texto;
+            divMensaje.style.color = color;
+        }
+
+        async function ejecutarRegistro() {
+            const usuario_id = document.getElementById("reg-usuario").value;
+            const password = document.getElementById("reg-password").value;
+            const nombre = document.getElementById("reg-nombre").value;
+
+            if(!usuario_id || !password) return mostrarMensaje("Completa los campos obligatorios", "red");
+
+            mostrarMensaje("Creando cuenta en AWS DynamoDB... ⏳", "#D62300");
+
+            try {
+                const respuesta = await fetch(`${API_AUTH_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        usuario_id: usuario_id,
+                        password: password,
+                        nombre: nombre
+                        // Si tu Python de registro espera otros campos, agrégalos aquí
+                    })
+                });
+
+                if (respuesta.ok) {
+                    mostrarMensaje("¡Cuenta creada con éxito! Ya puedes iniciar sesión.", "green");
+                    setTimeout(() => cambiarTab('login'), 2000);
+                } else {
+                    const error = await respuesta.json();
+                    mostrarMensaje(`Error: ${error.message || "No se pudo crear la cuenta"}`, "red");
+                }
+            } catch (err) {
+                mostrarMensaje("Fallo de conexión con el servidor AWS.", "red");
+            }
+        }
+
+        async function ejecutarLogin() {
+            const usuario_id = document.getElementById("login-usuario").value;
+            const password = document.getElementById("login-password").value;
+
+            if(!usuario_id || !password) return mostrarMensaje("Ingresa tu usuario y contraseña", "red");
+
+            mostrarMensaje("Validando credenciales...", "#D62300");
+
+            try {
+                const respuesta = await fetch(`${API_AUTH_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        usuario_id: usuario_id,
+                        password: password
+                    })
+                });
+
+                const datos = await respuesta.json();
+
+                if (respuesta.ok && datos.token) {
+                    mostrarMensaje("¡Acceso concedido! Entrando al sistema...", "green");
+                    
+                    localStorage.setItem("burger_token", datos.token);
+                    localStorage.setItem("burger_usuario", usuario_id);
+
+                    setTimeout(() => {
+                        window.location.href = "index.html"; 
+                    }, 1500);
+                } else {
+                    mostrarMensaje(`Acceso denegado: ${datos.message || "Credenciales incorrectas"}`, "red");
+                }
+            } catch (err) {
+                mostrarMensaje("Fallo de conexión con el API Gateway.", "red");
+            }
+        }
+    </script>
+</body>
+</html>
