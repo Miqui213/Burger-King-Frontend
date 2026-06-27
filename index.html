@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burger King - Menú Virtual</title>
+    <style>
+        :root {
+            --rojo-burger: #D62300;
+            --fondo: #F4F4F4;
+            --texto: #333333;
+            --naranja: #FF8732;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--fondo);
+            color: var(--texto);
+            margin: 0;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            background-color: white;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        header h1 {
+            color: var(--rojo-burger);
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        .grid-catalogo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tarjeta-producto {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .tarjeta-producto:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .img-container {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .img-container img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
+        .precio {
+            font-size: 1.5rem;
+            color: var(--rojo-burger);
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .btn-pedir {
+            background-color: var(--naranja);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        .btn-pedir:hover {
+            background-color: #e67622;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Burger King Cloud (Mock)</h1>
+        <p>Catálogo de demostración para la arquitectura Step Functions</p>
+    </header>
+
+    <div id="contenedor-menu" class="grid-catalogo">
+        </div>
+
+    <script>
+        const menuMock = [
+            {
+                id: "P001",
+                nombre: "Whopper Clásica",
+                descripcion: "Carne de res a la parrilla, tomates frescos, lechuga, mayonesa, kétchup, pepinillos y cebolla.",
+                precio: 15.90,
+                imagen_url: "https://s3-eu-central-1.amazonaws.com/www.burgerking.com.pe/wp-media-folder-burger-king-peru//home/ubuntu/preview/menu-app/frontend/apps/marketing-website-wordpress-app/web/app/uploads/sites/6/Whopper.png"
+            },
+            {
+                id: "P002",
+                nombre: "Whopper Doble",
+                descripcion: "Doble porción de carne de res a la parrilla con todos los ingredientes clásicos de la Whopper.",
+                precio: 21.90,
+                imagen_url: "https://s3-eu-central-1.amazonaws.com/www.burgerking.com.pe/wp-media-folder-burger-king-peru//home/ubuntu/preview/menu-app/frontend/apps/marketing-website-wordpress-app/web/app/uploads/sites/6/Doble-Whopper.png"
+            },
+            {
+                id: "P003",
+                nombre: "King de Pollo",
+                descripcion: "Pollo crujiente empanizado, lechuga fresca y mayonesa en pan con semillas de sésamo.",
+                precio: 14.50,
+                imagen_url: "https://s3-eu-central-1.amazonaws.com/www.burgerking.com.pe/wp-media-folder-burger-king-peru//home/ubuntu/preview/menu-app/frontend/apps/marketing-website-wordpress-app/web/app/uploads/sites/6/King-de-Pollo.png"
+            },
+            {
+                id: "P004",
+                nombre: "Papas Fritas Medianas",
+                descripcion: "Papas doradas, calientes y crujientes, con el toque perfecto de sal.",
+                precio: 6.50,
+                imagen_url: "https://s3-eu-central-1.amazonaws.com/www.burgerking.com.pe/wp-media-folder-burger-king-peru//home/ubuntu/preview/menu-app/frontend/apps/marketing-website-wordpress-app/web/app/uploads/sites/6/Papas-Medianas.png"
+            }
+        ];
+
+        // ================= LÓGICA DEL FRONTEND =================
+        function pintarMenu() {
+            const contenedor = document.getElementById("contenedor-menu");
+            contenedor.innerHTML = "";
+
+            menuMock.forEach(prod => {
+                const tarjeta = document.createElement("div");
+                tarjeta.className = "tarjeta-producto";
+                
+                tarjeta.innerHTML = `
+                    <div>
+                        <div class="img-container">
+                            <img src="${prod.imagen_url}" alt="${prod.nombre}">
+                        </div>
+                        <h2>${prod.nombre}</h2>
+                        <p style="font-size: 0.9rem; color: #666;">${prod.descripcion}</p>
+                    </div>
+                    <div>
+                        <div class="precio">S/ ${prod.precio.toFixed(2)}</div>
+                        <button class="btn-pedir" onclick="simularPedido('${prod.id}', '${prod.nombre}')">Pedir Ahora</button>
+                    </div>
+                `;
+                contenedor.appendChild(tarjeta);
+            });
+        }
+
+        function simularPedido(idProducto, nombreProducto) {
+            alert(`¡Has seleccionado: ${nombreProducto}! \n\nEn la versión final, esto dispararía el evento hacia AWS Step Functions para iniciar el flujo de la cocina.`);
+        }
+
+        pintarMenu();
+    </script>
+</body>
+</html>
