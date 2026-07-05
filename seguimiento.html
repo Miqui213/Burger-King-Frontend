@@ -208,19 +208,20 @@
             steps.forEach(s => document.getElementById(`step-${s}`).classList.remove('active'));
 
             // Encender según lógica acumulativa
+            // Encender según lógica acumulativa
             if(estado === "RECIBIDO") {
                 document.getElementById("step-recibido").classList.add('active');
             }
-            if(estado === "PREPARANDO" || estado === "EN_COCINA") {
+            if(estado === "PREPARANDO" || estado === "EN_COCINA" || estado === "PRODUCTO_PREPARADO") {
                 document.getElementById("step-recibido").classList.add('active');
                 document.getElementById("step-cocina").classList.add('active');
             }
-            if(estado === "EMPAQUETADO") {
+            if(estado === "EMPAQUETADO" || estado === "PRODUCTO_EMPAQUETADO") {
                 document.getElementById("step-recibido").classList.add('active');
                 document.getElementById("step-cocina").classList.add('active');
                 document.getElementById("step-empaquetado").classList.add('active');
             }
-            if(estado === "EN_CAMINO" || estado === "ENTREGADO") {
+            if(estado === "EN_CAMINO" || estado === "ENTREGADO" || estado === "DESPACHADO" || estado === "EN_DELIVERY") {
                 document.getElementById("step-recibido").classList.add('active');
                 document.getElementById("step-cocina").classList.add('active');
                 document.getElementById("step-empaquetado").classList.add('active');
