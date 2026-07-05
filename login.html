@@ -6,168 +6,374 @@
     <title>Burger King Cloud - Acceso</title>
     <style>
         :root {
-            --rojo-burger: #D62300;
-            --fondo: #F4F4F4;
-            --texto: #333333;
-            --borde: #ccc;
+            --bk-crema: #f5ebd9;
+            --bk-rojo: #d62300;
+            --bk-naranja: #ed7902;
+            --bk-texto: #503e33; 
+            --bk-blanco: #ffffff;
+            --bk-gris-claro: #e2e8f0;
+            --bk-gris-btn: #e5e7eb;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--fondo);
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bk-crema);
+            color: var(--bk-texto);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background-color: var(--bk-rojo);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 50px;
+        }
+
+        .logo-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo-img {
+            height: 45px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        .main-content {
+            flex: 1;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+            align-items: flex-start; /* Para que formularios largos no se corten */
+            padding: 40px 20px;
         }
 
         .auth-container {
-            background-color: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 450px; /* Un poco más ancho para el registro completo */
             text-align: center;
         }
 
-        .auth-container h1 {
-            color: var(--rojo-burger);
-            margin-top: 0;
-            margin-bottom: 30px;
-        }
-
-        .tabs {
-            display: flex;
+        .logo-center {
+            width: 60px;
             margin-bottom: 20px;
-            border-bottom: 2px solid var(--fondo);
         }
 
-        .tab {
-            flex: 1;
-            padding: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            color: #777;
-            transition: 0.3s;
+        .auth-container h2 {
+            font-size: 18px;
+            font-weight: 900;
+            margin-bottom: 30px;
+            color: var(--bk-texto);
         }
 
-        .tab.active {
-            color: var(--rojo-burger);
-            border-bottom: 3px solid var(--rojo-burger);
-        }
-
+        /* GRUPOS DE FORMULARIO ESTILO BK OFICIAL */
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             text-align: left;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: var(--bk-texto);
         }
 
         .form-group input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--borde);
-            border-radius: 6px;
+            padding: 14px 15px;
+            border: none;
+            border-radius: 8px;
             box-sizing: border-box;
-            font-size: 1rem;
+            font-size: 14px;
+            background-color: var(--bk-blanco);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: box-shadow 0.2s;
         }
 
+        .form-group input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--bk-rojo);
+        }
+
+        /* CHECKBOXES Y TEXTOS LEGALES */
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            font-size: 12px;
+            cursor: pointer;
+            text-align: left;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .checkbox-container input {
+            margin-right: 10px;
+            margin-top: 2px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .texto-rojo {
+            color: var(--bk-rojo);
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        .link-olvido {
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--bk-texto);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        /* BOTONES */
         .btn-submit {
-            background-color: var(--rojo-burger);
+            background-color: var(--bk-rojo);
             color: white;
             border: none;
             padding: 14px;
-            border-radius: 6px;
+            border-radius: 30px;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 15px;
             cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
+            width: 150px;
+            margin: 20px auto 30px auto;
+            display: block;
             transition: background 0.3s;
         }
 
         .btn-submit:hover {
             background-color: #a81c00;
         }
+        
+        .btn-gris {
+            background-color: var(--bk-gris-btn);
+            color: #6b7280;
+        }
 
+        .btn-gris:hover {
+            background-color: #d1d5db;
+        }
+
+        .separador {
+            height: 1px;
+            background-color: #e5e7eb;
+            margin: 30px 0;
+            width: 100%;
+        }
+
+        .registro-info {
+            text-align: center;
+        }
+
+        .registro-info h3 {
+            font-size: 16px;
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        .beneficios-lista {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 30px 0;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .beneficios-lista li {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .check-verde {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--bk-rojo);
+            border: 2px solid var(--bk-rojo);
+            padding: 12px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            width: 150px;
+            margin: 0 auto;
+            display: block;
+            transition: all 0.3s;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--bk-rojo);
+            color: white;
+        }
+
+        /* GESTIÓN DE VISTAS */
         .form-section {
             display: none;
+            animation: fadeIn 0.3s ease-in-out;
         }
 
         .form-section.active {
             display: block;
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         #mensaje-alerta {
             margin-top: 15px;
-            font-size: 0.9rem;
+            font-size: 14px;
             font-weight: bold;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <div class="auth-container">
-        <h1>Burger King</h1>
-        
-        <div class="tabs">
-            <div class="tab active" onclick="cambiarTab('login')">Iniciar Sesión</div>
-            <div class="tab" onclick="cambiarTab('registro')">Registrarse</div>
-        </div>
+    <div class="navbar">
+        <a href="index.html" class="logo-link" title="Volver al Inicio">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Burger_King_2020.svg" alt="Burger King Logo" class="logo-img">
+        </a>
+    </div>
 
-        <div id="form-login" class="form-section active">
-            <div class="form-group">
-                <label>Usuario (ID)</label>
-                <input type="text" id="login-usuario" placeholder="Ej: miguel123">
-            </div>
-            <div class="form-group">
-                <label>Contraseña</label>
-                <input type="password" id="login-password" placeholder="••••••••">
-            </div>
-            <button class="btn-submit" onclick="ejecutarLogin()">Entrar al Sistema</button>
-        </div>
+    <div class="main-content">
+        <div class="auth-container">
+            
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Burger_King_2020.svg" alt="BK Mini" class="logo-center">
 
-        <div id="form-registro" class="form-section">
-            <div class="form-group">
-                <label>Nuevo Usuario (ID)</label>
-                <input type="text" id="reg-usuario" placeholder="Crea un nombre de usuario">
-            </div>
-            <div class="form-group">
-                <label>Contraseña</label>
-                <input type="password" id="reg-password" placeholder="Crea una contraseña segura">
-            </div>
-            <div class="form-group">
-                <label>Nombre Completo</label>
-                <input type="text" id="reg-nombre" placeholder="Ej: Miguel Espinoza">
-            </div>
-            <button class="btn-submit" onclick="ejecutarRegistro()">Crear Cuenta</button>
-        </div>
+            <div id="form-login" class="form-section active">
+                <h2>Inicia sesión en burgerking.pe</h2>
+                
+                <div class="form-group">
+                    <label>Correo electrónico</label>
+                    <input type="email" id="login-usuario" placeholder="Ingresa tu correo">
+                </div>
+                
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="login-password" placeholder="Ingresa tu contraseña">
+                </div>
 
-        <div id="mensaje-alerta"></div>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="recordar-pass">
+                    <span style="font-weight: bold;">Recordar contraseña</span>
+                </label>
+
+                <div style="margin: 20px 0;">
+                    <a class="link-olvido">Olvidé mi contraseña</a>
+                </div>
+
+                <button class="btn-submit btn-gris" onclick="ejecutarLogin()">Iniciar Sesión</button>
+                
+                <div class="separador"></div>
+                
+                <div class="registro-info">
+                    <h3>Crea tu cuenta en burgerking.pe</h3>
+                    <ul class="beneficios-lista">
+                        <li><span class="check-verde">✓</span> Compra más rápido</li>
+                        <li><span class="check-verde">✓</span> Pide por adelantado</li>
+                        <li><span class="check-verde">✓</span> Accede a descuentos</li>
+                    </ul>
+                    <button class="btn-outline" onclick="cambiarVista('registro')">Crear cuenta</button>
+                </div>
+            </div>
+
+            <div id="form-registro" class="form-section">
+                <h2>Crea tu cuenta en burgerking.pe</h2>
+                
+                <div class="form-group">
+                    <label>Nombres</label>
+                    <input type="text" id="reg-nombres" placeholder="Ingresa tus nombres">
+                </div>
+
+                <div class="form-group">
+                    <label>Apellidos</label>
+                    <input type="text" id="reg-apellidos" placeholder="Ingresa tus apellidos">
+                </div>
+
+                <div class="form-group">
+                    <label>Número de DNI</label>
+                    <input type="text" id="reg-dni" placeholder="Ingresa tu número de DNI">
+                </div>
+
+                <label class="checkbox-container">
+                    <input type="checkbox">
+                    <span>Acumular puntos Bonus</span>
+                </label>
+
+                <div class="form-group">
+                    <label>Número celular</label>
+                    <input type="tel" id="reg-celular" placeholder="Ingresa tu número celular">
+                </div>
+
+                <div class="form-group">
+                    <label>Correo electrónico</label>
+                    <input type="email" id="reg-correo" placeholder="Ingresa tu correo electrónico">
+                </div>
+
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="reg-password" placeholder="Ingresa tu contraseña">
+                </div>
+
+                <label class="checkbox-container">
+                    <input type="checkbox" id="reg-terminos">
+                    <span>Acepto la <span class="texto-rojo">Política de Privacidad de datos</span> y los <span class="texto-rojo">Términos y Condiciones</span></span>
+                </label>
+
+                <label class="checkbox-container">
+                    <input type="checkbox">
+                    <span>Autorizo el tratamiento de mis datos para fines de prospección y promoción comercial por parte de <span class="texto-rojo">Burger King y sus Empresas Vinculadas</span></span>
+                </label>
+
+                <button class="btn-submit" onclick="ejecutarRegistro()">Crear cuenta</button>
+                
+                <div class="separador"></div>
+                
+                <a class="link-olvido" onclick="cambiarVista('login')" style="display: block; text-align: center; margin-top: 20px;">
+                    ← Ya tengo una cuenta. Iniciar Sesión
+                </a>
+            </div>
+
+            <div id="mensaje-alerta"></div>
+
+        </div>
     </div>
 
     <script>
         const API_AUTH_URL = "https://j6fn7s0879.execute-api.us-east-1.amazonaws.com";
 
-        function cambiarTab(modo) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        function cambiarVista(modo) {
             document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
             
             if(modo === 'login') {
-                document.querySelector('.tabs .tab:nth-child(1)').classList.add('active');
                 document.getElementById('form-login').classList.add('active');
             } else {
-                document.querySelector('.tabs .tab:nth-child(2)').classList.add('active');
                 document.getElementById('form-registro').classList.add('active');
             }
-            mostrarMensaje("", "black");
+            mostrarMensaje("", "black"); 
         }
 
         function mostrarMensaje(texto, color) {
@@ -176,53 +382,61 @@
             divMensaje.style.color = color;
         }
 
+        // ================= CONEXIÓN BACKEND: REGISTRO =================
         async function ejecutarRegistro() {
-            const usuario_id = document.getElementById("reg-usuario").value;
+            const nombres = document.getElementById("reg-nombres").value;
+            const apellidos = document.getElementById("reg-apellidos").value;
+            const correo = document.getElementById("reg-correo").value;
             const password = document.getElementById("reg-password").value;
-            const nombre = document.getElementById("reg-nombre").value;
+            const terminos = document.getElementById("reg-terminos").checked;
 
-            if(!usuario_id || !password) return mostrarMensaje("Completa los campos obligatorios", "red");
+            if(!nombres || !apellidos || !correo || !password) {
+                return mostrarMensaje("Completa los campos obligatorios", "red");
+            }
+            if(!terminos) {
+                return mostrarMensaje("Debes aceptar los Términos y Condiciones", "red");
+            }
 
-            mostrarMensaje("Creando cuenta en AWS DynamoDB... ⏳", "#D62300");
+            mostrarMensaje("Creando cuenta en AWS DynamoDB... ⏳", "var(--bk-rojo)");
 
             try {
                 const respuesta = await fetch(`${API_AUTH_URL}/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        usuario_id: usuario_id,
+                        email: correo, // <-- ¡CORREGIDO! AWS pide 'email'
                         password: password,
-                        nombre: nombre
-                        // Si tu Python de registro espera otros campos, agrégalos aquí
+                        nombre: nombres + " " + apellidos
                     })
                 });
 
                 if (respuesta.ok) {
-                    mostrarMensaje("¡Cuenta creada con éxito! Ya puedes iniciar sesión.", "green");
-                    setTimeout(() => cambiarTab('login'), 2000);
+                    mostrarMensaje("¡Cuenta creada con éxito! Ya puedes iniciar sesión.", "#28a745");
+                    setTimeout(() => cambiarVista('login'), 2000);
                 } else {
                     const error = await respuesta.json();
-                    mostrarMensaje(`Error: ${error.message || "No se pudo crear la cuenta"}`, "red");
+                    mostrarMensaje(`Error: ${error.error || error.message || "No se pudo crear la cuenta"}`, "red");
                 }
             } catch (err) {
                 mostrarMensaje("Fallo de conexión con el servidor AWS.", "red");
             }
         }
 
+        // ================= CONEXIÓN BACKEND: LOGIN =================
         async function ejecutarLogin() {
-            const usuario_id = document.getElementById("login-usuario").value;
+            const correo = document.getElementById("login-usuario").value;
             const password = document.getElementById("login-password").value;
 
-            if(!usuario_id || !password) return mostrarMensaje("Ingresa tu usuario y contraseña", "red");
+            if(!correo || !password) return mostrarMensaje("Ingresa tu correo y contraseña", "red");
 
-            mostrarMensaje("Validando credenciales...", "#D62300");
+            mostrarMensaje("Validando credenciales...", "var(--bk-rojo)");
 
             try {
                 const respuesta = await fetch(`${API_AUTH_URL}/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        usuario_id: usuario_id,
+                        email: correo, // <-- ¡CORREGIDO AQUÍ TAMBIÉN!
                         password: password
                     })
                 });
@@ -230,16 +444,17 @@
                 const datos = await respuesta.json();
 
                 if (respuesta.ok && datos.token) {
-                    mostrarMensaje("¡Acceso concedido! Entrando al sistema...", "green");
+                    mostrarMensaje("¡Acceso concedido! Entrando al sistema...", "#28a745");
                     
                     localStorage.setItem("burger_token", datos.token);
-                    localStorage.setItem("burger_usuario", usuario_id);
+                    const nombreUsuario = correo.split('@')[0];
+                    localStorage.setItem("burger_usuario", nombreUsuario);
 
                     setTimeout(() => {
                         window.location.href = "index.html"; 
-                    }, 1500);
+                    }, 1000);
                 } else {
-                    mostrarMensaje(`Acceso denegado: ${datos.message || "Credenciales incorrectas"}`, "red");
+                    mostrarMensaje(`Acceso denegado: ${datos.error || datos.message || "Credenciales incorrectas"}`, "red");
                 }
             } catch (err) {
                 mostrarMensaje("Fallo de conexión con el API Gateway.", "red");

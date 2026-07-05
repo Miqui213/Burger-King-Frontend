@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Carrito - Burger King Cloud</title>
+    <style>
+        :root {
+            --bk-crema: #f5ebd9;
+            --bk-rojo: #d62300;
+            --bk-naranja: #ed7902;
+            --bk-texto: #503e33;
+        }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background-color: var(--bk-crema); 
+            color: var(--bk-texto);
+            margin: 0; 
+            padding: 40px 20px; 
+            display: flex;
+            justify-content: center;
+        }
+        .container { 
+            width: 100%;
+            max-width: 600px; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05); 
+        }
+        .header-carrito {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--bk-crema);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .header-carrito h1 { 
+            color: var(--bk-rojo); 
+            margin: 0;
+            font-size: 24px;
+        }
+        .item-carrito { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 15px 0; 
+            border-bottom: 1px solid #eee; 
+        }
+        .item-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .item-nombre {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .item-precio {
+            color: var(--bk-rojo);
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .btn-eliminar { 
+            background: white; 
+            color: #999; 
+            border: 1px solid #ccc; 
+            padding: 8px 12px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-eliminar:hover {
+            background: #ffe5e5;
+            color: var(--bk-rojo);
+            border-color: var(--bk-rojo);
+        }
+        .total-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            font-size: 20px;
+            font-weight: 900;
+        }
+        .btn-confirmar { 
+            background: var(--bk-naranja); 
+            color: white; 
+            border: none; 
+            padding: 18px; 
+            border-radius: 30px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            width: 100%; 
+            margin-top: 30px; 
+            transition: background 0.3s;
+        }
+        .btn-confirmar:hover {
+            background: #d66b00;
+        }
+        .btn-confirmar:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .link-volver {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--bk-texto);
+            text-decoration: underline;
+            font-weight: bold;
+        }
+        #mensaje-vacio {
+            text-align: center;
+            color: #999;
+            padding: 40px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-carrito">
+        <h1>🛒 Tu Pedido</h1>
+        <a href="catalogo.html" style="color: var(--bk-naranja); font-weight: bold; text-decoration: none;">+ Agregar más</a>
+    </div>
+
+    <div id="mensaje-vacio">
+        <h2>Tu carrito está vacío</h2>
+        <p>¡Agrega unas hamburguesas para empezar!</p>
+    </div>
+
+    <div id="lista-carrito"></div>
+    
+    <div class="total-container">
+        <span>Total a pagar:</span>
+        <span id="total-carrito" style="color: var(--bk-rojo);">S/ 0.00</span>
+    </div>
+
+    <button id="btn-pagar" class="btn-confirmar" onclick="finalizarPedido()">Confirmar y Pagar</button>
+    
+    <a href="index.html" class="link-volver">← Volver al inicio</a>
+</div>
+
+<script>
+    // URL DE TU API DE PEDIDOS
+    const API_PEDIDOS_URL = "https://3njp16b20g.execute-api.us-east-1.amazonaws.com";
+
+    // Recuperar carrito de la memoria
+    let carrito = JSON.parse(localStorage.getItem("burger_carrito")) || [];
+
+    function renderCarrito() {
+        const lista = document.getElementById("lista-carrito");
+        const divVacio = document.getElementById("mensaje-vacio");
+        const btnPagar = document.getElementById("btn-pagar");
+        
+        lista.innerHTML = "";
+        let total = 0;
+
+        if (carrito.length === 0) {
+            divVacio.style.display = "block";
+            btnPagar.disabled = true;
+            document.getElementById("total-carrito").innerText = `S/ 0.00`;
+            return;
+        } else {
+            divVacio.style.display = "none";
+            btnPagar.disabled = false;
+        }
+
+        carrito.forEach((item, index) => {
+            total += item.precio;
+            lista.innerHTML += `
+                <div class="item-carrito">
+                    <div class="item-info">
+                        <span class="item-nombre">${item.nombre}</span>
+                        <span class="item-precio">S/ ${item.precio.toFixed(2)}</span>
+                    </div>
+                    <button class="btn-eliminar" onclick="eliminarItem(${index})">X</button>
+                </div>
+            `;
+        });
+        
+        document.getElementById("total-carrito").innerText = `S/ ${total.toFixed(2)}`;
+    }
+
+    function eliminarItem(index) {
+        carrito.splice(index, 1);
+        localStorage.setItem("burger_carrito", JSON.stringify(carrito));
+        renderCarrito();
+    }
+
+    async function finalizarPedido() {
+        const token = localStorage.getItem("burger_token");
+        const usuario = localStorage.getItem("burger_usuario");
+
+        if (!token) {
+            alert("Debes iniciar sesión para realizar un pedido.");
+            window.location.href = "login.html";
+            return;
+        }
+
+        if (carrito.length === 0) return;
+
+        const btnPagar = document.getElementById("btn-pagar");
+        btnPagar.innerText = "Procesando pago... ⏳";
+        btnPagar.disabled = true;
+
+        const totalCalculado = carrito.reduce((sum, item) => sum + item.precio, 0);
+
+        try {
+            const payload = {
+                usuario_id: usuario,
+                local_id: "STORE-001",
+                items: carrito,
+                total: totalCalculado
+            };
+
+            // AQUÍ CONECTAMOS CON LA RUTA EXACTA DE TU SERVERLESS.YML
+            const respuesta = await fetch(`${API_PEDIDOS_URL}/pedidos/crear`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Tu autorizador validará esto
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (respuesta.ok) {
+                const datos = await respuesta.json();
+                
+                // --- NUEVA LÍNEA AGREGADA AQUÍ ---
+                // Guardamos el ID de este pedido como el "último" para rastrearlo automáticamente
+                localStorage.setItem("burger_ultimo_pedido_id", datos.pedido_id);
+                // ---------------------------------
+
+                alert(`¡Pago exitoso! 🍔🚀\nTu pedido ha sido enviado a la cocina.\nID de seguimiento: ${datos.pedido_id || 'Generado'}`);
+                
+                // Limpiar todo tras la compra
+                carrito = [];
+                localStorage.removeItem("burger_carrito");
+                renderCarrito();
+                
+                // Regresar a la portada (o podrías mandarlo directo a seguimiento.html)
+                window.location.href = "index.html";
+                
+            }
+            
+        } catch (error) {
+            console.error("Fallo de red:", error);
+            alert("Hubo un error de conexión con tu API Gateway.");
+            btnPagar.innerText = "Confirmar y Pagar";
+            btnPagar.disabled = false;
+        }
+    }
+
+    // Pintar los productos apenas carga la página
+    window.onload = renderCarrito;
+</script>
+</body>
+</html>

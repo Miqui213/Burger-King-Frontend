@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado de tu Pedido - Burger King</title>
+    <style>
+        :root {
+            --bk-crema: #f5ebd9;
+            --bk-rojo: #d62300;
+            --bk-naranja: #ed7902;
+            --bk-texto: #503e33;
+        }
+        body { font-family: 'Arial', sans-serif; background-color: var(--bk-crema); color: var(--bk-texto); margin: 0; padding: 0; }
+        .navbar { background-color: var(--bk-rojo); height: 70px; display: flex; align-items: center; padding: 0 50px; }
+        .logo-img { height: 45px; width: auto; }
+        
+        .container { max-width: 600px; margin: 50px auto; text-align: center; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        h1 { color: var(--bk-rojo); margin-bottom: 30px; font-size: 28px; }
+        
+        /* Contenedor de info del pedido */
+        .pedido-info-header {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* Línea de tiempo de estados */
+        .estado-titulo { font-size: 32px; font-weight: 900; color: var(--bk-naranja); margin-bottom: 25px; }
+        
+        /* Iconos de Progreso */
+        .progress-container {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+        /* Línea gris de fondo */
+        .progress-container::before {
+            content: '';
+            position: absolute;
+            top: 25px; /* Mitad del icono aprox */
+            left: 50px;
+            right: 50px;
+            height: 4px;
+            background-color: #e9ecef;
+            z-index: 1;
+        }
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2; /* Por encima de la línea */
+            width: 80px;
+        }
+        .icon-circle {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border: 4px solid #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        .step-label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #999;
+        }
+
+        /* Clases de estado ACTIVO */
+        .step.active .icon-circle {
+            border-color: var(--bk-naranja);
+            background-color: #fff3e0;
+            transform: scale(1.1);
+        }
+        .step.active .step-label {
+            color: var(--bk-texto);
+        }
+
+        #mensaje-error {
+            display: none;
+            color: red;
+            font-weight: bold;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a href="index.html" title="Volver al Inicio">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Burger_King_2020.svg" alt="Burger King Logo" class="logo-img">
+        </a>
+    </div>
+
+    <div class="container">
+        <h1>Estado de tu Pedido</h1>
+
+        <div class="pedido-info-header" id="pedido-header" style="display:none;">
+            Pedido ID: <b id="txt-pedido-id" style="text-transform: uppercase;">--</b>
+        </div>
+
+        <div id="seccion-rastreo">
+            <div class="estado-titulo" id="txt-estado">Buscando... ⏳</div>
+            
+            <div class="progress-container">
+                <div class="step" id="step-recibido">
+                    <div class="icon-circle">📝</div>
+                    <div class="step-label">Recibido</div>
+                </div>
+                <div class="step" id="step-cocina">
+                    <div class="icon-circle">🍳</div>
+                    <div class="step-label">En Parrilla</div>
+                </div>
+                <div class="step" id="step-empaquetado">
+                    <div class="icon-circle">🛍️</div>
+                    <div class="step-label">Listo</div>
+                </div>
+                <div class="step" id="step-delivery">
+                    <div class="icon-circle">🛵</div>
+                    <div class="step-label">En Camino</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="mensaje-error"></div>
+        
+        <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
+            <a href="catalogo.html" style="color: var(--bk-rojo); font-weight: bold; text-decoration: none; margin-right: 20px;">+ Hacer otro pedido</a>
+            <a href="index.html" style="color: var(--bk-texto); font-weight: bold;">Volver al inicio</a>
+        </div>
+    </div>
+
+    <script>
+        const API_PEDIDOS_URL = "https://3njp16b20g.execute-api.us-east-1.amazonaws.com";
+
+        async function autorastrearPedido() {
+            // 1. Intentamos leer el último ID guardado automáticamente
+            const pedidoId = localStorage.getItem("burger_ultimo_pedido_id");
+            const token = localStorage.getItem("burger_token");
+            
+            const txtEstado = document.getElementById("txt-estado");
+            const msgError = document.getElementById("mensaje-error");
+            const seccionRastreo = document.getElementById("seccion-rastreo");
+            const headerPedido = document.getElementById("pedido-header");
+
+            // Validaciones iniciales
+            if (!token) {
+                alert("Debes iniciar sesión.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            if (!pedidoId) {
+                txtEstado.style.display = "none";
+                seccionRastreo.style.display = "none";
+                msgError.style.display = "block";
+                msgError.innerHTML = "<h2>No tienes pedidos recientes</h2><p>Haz una compra en el catálogo para ver su estado aquí.</p>";
+                return;
+            }
+
+            // Mostramos el ID que estamos buscando
+            headerPedido.style.display = "block";
+            document.getElementById("txt-pedido-id").innerText = pedidoId;
+
+            try {
+                // 2. Llamada a la API de AWS (GET)
+                const respuesta = await fetch(`${API_PEDIDOS_URL}/pedidos/estado/${pedidoId}`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (respuesta.ok) {
+                    const datos = await respuesta.json();
+                    
+                    // Manejo de la estructura de respuesta de DynamoDB
+                    const estadoActual = datos.estado || datos.Item?.estado || "DESCONOCIDO";
+                    
+                    txtEstado.innerText = estadoActual;
+                    txtEstado.style.color = "var(--bk-naranja)";
+                    
+                    // 3. Lógica para encender los pasos visuales
+                    setProgresoVisial(estadoActual);
+
+                } else {
+                    txtEstado.innerText = "❌ No encontrado";
+                    txtEstado.style.color = "red";
+                }
+            } catch (error) {
+                console.error(error);
+                txtEstado.innerText = "⚠️ Error de conexión";
+                txtEstado.style.color = "red";
+            }
+        }
+
+        // Función auxiliar para prender los foquitos
+        function setProgresoVisial(estado) {
+            // Apagar todo primero
+            const steps = ['recibido', 'cocina', 'empaquetado', 'delivery'];
+            steps.forEach(s => document.getElementById(`step-${s}`).classList.remove('active'));
+
+            // Encender según lógica acumulativa
+            if(estado === "RECIBIDO") {
+                document.getElementById("step-recibido").classList.add('active');
+            }
+            if(estado === "PREPARANDO" || estado === "EN_COCINA") {
+                document.getElementById("step-recibido").classList.add('active');
+                document.getElementById("step-cocina").classList.add('active');
+            }
+            if(estado === "EMPAQUETADO") {
+                document.getElementById("step-recibido").classList.add('active');
+                document.getElementById("step-cocina").classList.add('active');
+                document.getElementById("step-empaquetado").classList.add('active');
+            }
+            if(estado === "EN_CAMINO" || estado === "ENTREGADO") {
+                document.getElementById("step-recibido").classList.add('active');
+                document.getElementById("step-cocina").classList.add('active');
+                document.getElementById("step-empaquetado").classList.add('active');
+                document.getElementById("step-delivery").classList.add('active');
+            }
+        }
+
+        // Ejecutar automáticamente al abrir la página
+        window.onload = autorastrearPedido;
+    </script>
+</body>
+</html>

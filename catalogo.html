@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú - Burger King Cloud</title>
+    <style>
+        :root {
+            --bk-crema: #f5ebd9;
+            --bk-rojo: #d62300;
+            --bk-naranja: #ed7902;
+            --bk-texto: #333333;
+            --bk-blanco: #ffffff;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bk-crema);
+            color: var(--bk-texto);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* NAVBAR Y CARRITO ARREGLADOS */
+        .navbar {
+            background-color: var(--bk-rojo);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Separa logo y carrito */
+            padding: 0 50px;
+        }
+
+        .nav-left, .nav-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+
+        .logo-link:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-img {
+            height: 45px; 
+            width: auto; 
+            object-fit: contain;
+        }
+
+        /* Estilos del carrito copiados del index */
+        .nav-item {
+            display: flex;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+        }
+
+        .icono-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-right: 8px;
+        }
+
+        .icono-svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: white;
+            color: var(--bk-rojo);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .precio-carrito {
+            font-size: 15px;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* CONTENEDOR Y PRODUCTOS */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .categorias {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .cat-btn {
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--bk-texto);
+            cursor: pointer;
+            padding-bottom: 5px;
+        }
+
+        .cat-btn:hover, .cat-btn.activo {
+            color: var(--bk-rojo);
+            border-bottom: 3px solid var(--bk-rojo);
+        }
+
+        .resultados-header {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .grid-productos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        .tarjeta {
+            background-color: var(--bk-blanco);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .tarjeta:hover {
+            transform: translateY(-5px);
+        }
+
+        .tarjeta img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .tarjeta h3 {
+            font-size: 18px;
+            margin: 0 0 10px 0;
+            line-height: 1.2;
+        }
+
+        .tarjeta p.desc {
+            font-size: 12px;
+            color: #666;
+            flex-grow: 1;
+            margin: 0 0 20px 0;
+        }
+
+        .precio-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .btn-agregar {
+            background-color: var(--bk-blanco);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 35px;
+            height: 35px;
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--bk-texto);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-agregar:hover {
+            background-color: var(--bk-crema);
+        }
+
+        .loader {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--bk-naranja);
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-left">
+            <a href="index.html" class="logo-link" title="Volver al Inicio">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Burger_King_2020.svg" alt="Burger King Logo" class="logo-img">
+            </a>
+        </div>
+        <div class="nav-right">
+            <div class="nav-item" onclick="window.location.href='carrito.html'" style="cursor: pointer;" title="Ir al Carrito">
+                <div class="icono-container">
+                    <svg class="icono-svg" viewBox="0 0 24 24">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <span class="badge">0</span>
+                </div>
+                <span class="precio-carrito">S/ 0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="categorias">
+            <button class="cat-btn activo" onclick="filtrar('Todos')">Ver todo</button>
+            <button class="cat-btn" onclick="filtrar('Whopper')">Whopper</button>
+            <button class="cat-btn" onclick="filtrar('Contundentes')">Contundentes</button>
+            <button class="cat-btn" onclick="filtrar('XT Premium')">XT Premium</button>
+            <button class="cat-btn" onclick="filtrar('Pollo')">Pollo</button>
+            <button class="cat-btn" onclick="filtrar('Complementos')">Complementos</button>
+            <button class="cat-btn" onclick="filtrar('Postres')">Postres</button>
+        </div>
+
+        <div class="resultados-header" id="contador-resultados">
+            Cargando productos...
+        </div>
+
+        <div class="loader" id="loader">Conectando con AWS DynamoDB...</div>
+        
+        <div class="grid-productos" id="contenedor-productos"></div>
+    </div>
+
+    <script>
+        const API_URL_LISTAR = "https://s84oqtxbu5.execute-api.us-east-1.amazonaws.com/productos/list";
+        
+        let catalogoGlobal = [];
+
+        async function cargarCatalogo() {
+            try {
+                const payload = {
+                    "local_id": "STORE-001",
+                    "size": 50 
+                };
+
+                const respuesta = await fetch(API_URL_LISTAR, {
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!respuesta.ok) {
+                    const errorJson = await respuesta.json();
+                    throw new Error(errorJson.error || "Fallo en la API");
+                }
+
+                const datos = await respuesta.json();
+                document.getElementById('loader').style.display = 'none';
+                catalogoGlobal = datos.contents; 
+                pintarProductos(catalogoGlobal);
+
+            } catch (error) {
+                console.error("Error al cargar:", error);
+                document.getElementById('loader').innerText = "⚠️ " + error.message;
+            }
+        }
+
+        function pintarProductos(productos) {
+            const contenedor = document.getElementById('contenedor-productos');
+            const contador = document.getElementById('contador-resultados');
+            
+            contenedor.innerHTML = ''; 
+            contador.innerText = `${productos.length} resultados`;
+
+            productos.forEach(prod => {
+                const precioFormateado = parseFloat(prod.precio).toFixed(2);
+                const tarjeta = document.createElement('div');
+                tarjeta.className = 'tarjeta';
+                
+                tarjeta.innerHTML = `
+                    <img src="${prod.imagen_url}" alt="${prod.nombre}">
+                    <h3>${prod.nombre}</h3>
+                    <p class="desc">Delicioso producto de nuestra categoría ${prod.categoria}. Preparado en la parrilla de AWS.</p>
+                    <div class="precio-container">
+                        <span>S/ ${precioFormateado}</span>
+                        <button class="btn-agregar" onclick="prepararPedido('${prod.producto_id}', '${prod.nombre}', ${prod.precio})">+</button>
+                    </div>
+                `;
+                contenedor.appendChild(tarjeta);
+            });
+        }
+
+        function filtrar(categoriaBuscada) {
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('activo'));
+            event.target.classList.add('activo');
+
+            if (categoriaBuscada === 'Todos') {
+                pintarProductos(catalogoGlobal);
+            } else {
+                const filtrados = catalogoGlobal.filter(p => p.categoria === categoriaBuscada);
+                pintarProductos(filtrados);
+            }
+        }
+
+        // ==========================================
+        // LÓGICA DEL CARRITO Y PEDIDOS
+        // ==========================================
+        // ==========================================
+        // LÓGICA DEL CARRITO (CON LOCALSTORAGE)
+        // ==========================================
+        const API_PEDIDOS_URL = "https://3njp16b20g.execute-api.us-east-1.amazonaws.com"; 
+        
+        // 1. Al cargar la página, intentamos recuperar el carrito guardado
+        let carrito = JSON.parse(localStorage.getItem("burger_carrito")) || [];
+
+        function prepararPedido(id, nombre, precio) {
+            carrito.push({
+                producto_id: id,
+                nombre: nombre,
+                precio: parseFloat(precio),
+                cantidad: 1
+            });
+            
+            // 2. Guardamos el carrito actualizado en el almacenamiento del navegador
+            localStorage.setItem("burger_carrito", JSON.stringify(carrito));
+            
+            actualizarUIcarrito();
+        }
+
+        function actualizarUIcarrito() {
+            const totalItems = carrito.length;
+            const totalPrecio = carrito.reduce((sum, item) => sum + item.precio, 0);
+
+            const badges = document.querySelectorAll('.badge');
+            if(badges.length > 0) badges[0].innerText = totalItems; 
+            
+            const precioCarrito = document.querySelector('.precio-carrito');
+            if(precioCarrito) precioCarrito.innerText = `S/ ${totalPrecio.toFixed(2)}`;
+        }
+
+        async function enviarPedidoAWS() {
+            const token = localStorage.getItem("burger_token");
+            const usuario = localStorage.getItem("burger_usuario");
+
+            if (!token) {
+                alert("Debes iniciar sesión para realizar un pedido.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            if (carrito.length === 0) {
+                alert("Tu carrito está vacío.");
+                return;
+            }
+
+            document.querySelector('.precio-carrito').innerText = "Procesando...";
+
+            try {
+                const payload = {
+                    usuario_id: usuario,
+                    local_id: "STORE-001",
+                    items: carrito,
+                    total: carrito.reduce((sum, item) => sum + item.precio, 0)
+                };
+
+                const respuesta = await fetch(`${API_PEDIDOS_URL}/pedido`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (respuesta.ok) {
+                    const datos = await respuesta.json();
+                    alert(`¡Pedido enviado a cocina! 🍔\nID de seguimiento: ${datos.pedido_id}`);
+                    
+                    // 3. ¡Si la compra fue un éxito, vaciamos el carrito y lo borramos de la memoria!
+                    carrito = [];
+                    localStorage.removeItem("burger_carrito");
+                    actualizarUIcarrito();
+                } else {
+                    const error = await respuesta.json();
+                    alert(`Error al procesar: ${error.message}`);
+                    actualizarUIcarrito();
+                }
+
+            } catch (error) {
+                console.error("Fallo de red:", error);
+                alert("Hubo un error de conexión con AWS Step Functions.");
+                actualizarUIcarrito(); 
+            }
+        }
+
+        // ==========================================
+        // CARGA INICIAL
+        // ==========================================
+        window.onload = () => {
+            cargarCatalogo();
+            actualizarUIcarrito(); // Pintamos el carrito guardado al abrir la página
+        };
+    </script>
+</body>
+</html>
