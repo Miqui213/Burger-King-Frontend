@@ -227,6 +227,14 @@
                 document.getElementById("step-empaquetado").classList.add('active');
                 document.getElementById("step-delivery").classList.add('active');
             }
+            if(estado === "cocina_completa" || estado === "empaquetando" || estado === "entrega_delivery" || estado === "ENTREGADO") {
+                document.getElementById("step-recibido").classList.add('active');
+                document.getElementById("step-cocina").classList.add('active');
+                document.getElementById("step-listo").classList.add('active'); // Enciende la luz de 'Listo'
+            }
+            if(estado === "ENTREGADO" || estado === "pedido_en_camino") {
+                document.getElementById("step-encamino").classList.add('active'); // Enciende la última luz
+            }
         }
 
         // Ejecutar automáticamente al abrir la página
