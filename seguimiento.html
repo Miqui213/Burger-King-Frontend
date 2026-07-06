@@ -201,39 +201,45 @@
             }
         }
 
-        // Función auxiliar para prender los foquitos
-        function setProgresoVisial(estado) {
-            // Apagar todo primero
-            const steps = ['recibido', 'cocina', 'empaquetado', 'delivery'];
-            steps.forEach(s => document.getElementById(`step-${s}`).classList.remove('active'));
+        // --- FUNCIONES SEGURAS DE INTERFAZ ---
 
-            // Encender según lógica acumulativa
-            // Encender según lógica acumulativa
-            if(estado === "RECIBIDO" || estado === "procesando") {
-                document.getElementById("step-recibido").classList.add('active');
+        // Función segura para encender luces sin crashear la página
+        function encenderLuz(id) {
+            const elemento = document.getElementById(id);
+            if (elemento) elemento.classList.add('active');
+        }
+
+        function setProgresoVisial(estado) {
+            // 1. Apagar todo de forma segura
+            const steps = ['step-recibido', 'step-cocina', 'step-empaquetado', 'step-delivery'];
+            steps.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.classList.remove('active');
+            });
+
+            // 2. Normalizar el estado a mayúsculas para facilitar la comparación
+            const estadoNormalizado = estado.toUpperCase();
+
+            // 3. Lógica Acumulativa (Encender luces)
+            // LUZ 1: Siempre se enciende si el pedido existe
+            encenderLuz("step-recibido");
+
+            // LUZ 2: En Parrilla
+            const estadosParrilla = ["EN_PREPARACION", "PREPARANDO", "EN_COCINA", "COCINA_COMPLETA", "EMPAQUETANDO", "EMPAQUETADO", "PEDIDO_EN_CAMINO", "ENTREGA_DELIVERY", "ENTREGADO"];
+            if (estadosParrilla.includes(estadoNormalizado)) {
+                encenderLuz("step-cocina");
             }
-            if(estado === "PREPARANDO" || estado === "EN_COCINA" || estado === "PRODUCTO_PREPARADO" || estado === "en_preparacion") {
-                document.getElementById("step-recibido").classList.add('active');
-                document.getElementById("step-cocina").classList.add('active');
+
+            // LUZ 3: Listo (Empaque)
+            const estadosEmpaque = ["COCINA_COMPLETA", "EMPAQUETANDO", "EMPAQUETADO", "PEDIDO_EN_CAMINO", "ENTREGA_DELIVERY", "ENTREGADO"];
+            if (estadosEmpaque.includes(estadoNormalizado)) {
+                encenderLuz("step-empaquetado"); // ID corregido
             }
-            if(estado === "EMPAQUETADO" || estado === "PRODUCTO_EMPAQUETADO") {
-                document.getElementById("step-recibido").classList.add('active');
-                document.getElementById("step-cocina").classList.add('active');
-                document.getElementById("step-empaquetado").classList.add('active');
-            }
-            if(estado === "EN_CAMINO" || estado === "ENTREGADO" || estado === "DESPACHADO" || estado === "EN_DELIVERY" || estado === "EN_CAMINO_DELIVERY_LOCAL") {
-                document.getElementById("step-recibido").classList.add('active');
-                document.getElementById("step-cocina").classList.add('active');
-                document.getElementById("step-empaquetado").classList.add('active');
-                document.getElementById("step-delivery").classList.add('active');
-            }
-            if(estado === "cocina_completa" || estado === "empaquetando" || estado === "entrega_delivery" || estado === "ENTREGADO") {
-                document.getElementById("step-recibido").classList.add('active');
-                document.getElementById("step-cocina").classList.add('active');
-                document.getElementById("step-listo").classList.add('active'); // Enciende la luz de 'Listo'
-            }
-            if(estado === "ENTREGADO" || estado === "pedido_en_camino") {
-                document.getElementById("step-encamino").classList.add('active'); // Enciende la última luz
+
+            // LUZ 4: En Camino (Delivery)
+            const estadosDelivery = ["PEDIDO_EN_CAMINO", "ENTREGA_DELIVERY", "ENTREGADO", "EN_CAMINO", "DESPACHADO"];
+            if (estadosDelivery.includes(estadoNormalizado)) {
+                encenderLuz("step-delivery"); // ID corregido
             }
         }
 
