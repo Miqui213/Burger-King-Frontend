@@ -268,19 +268,12 @@
             btn.disabled = true;
 
             try {
-                // Hacemos el POST a la URL correcta
-                const res = await fetch(`${API_STEPFUNCTIONS_URL}/eventos/trigger`, {
+                // Apuntamos directamente a tu Lambda de ConfirmarCliente
+                // (Verifica en tu serverless.yml que este sea el 'path' exacto)
+                const res = await fetch(`${API_STEPFUNCTIONS_URL}/operaciones/cliente/confirmar`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        source: "burgerking.cliente",
-                        "detail-type": "ConfirmarPedidoCliente",
-                        detail: {
-                            order_id: pedidoId,
-                            status: "ENTREGADO", 
-                            empleado_id: "CLIENTE_WEB"
-                        }
-                    })
+                    body: JSON.stringify({ pedido_id: pedidoId })
                 });
 
                 if (res.ok) {
