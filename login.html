@@ -397,7 +397,7 @@
                 return mostrarMensaje("Debes aceptar los Términos y Condiciones", "red");
             }
 
-            mostrarMensaje("Creando cuenta en AWS DynamoDB... ⏳", "var(--bk-rojo)");
+            mostrarMensaje("Creando cuenta en AWS DynamoDB...", "var(--bk-rojo)");
 
             try {
                 const respuesta = await fetch(`${API_AUTH_URL}/auth/register`, {
