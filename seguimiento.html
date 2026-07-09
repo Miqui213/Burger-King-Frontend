@@ -299,8 +299,11 @@
             }
         }
 
-        // Ejecutar automáticamente al abrir la página
-        window.onload = autorastrearPedido;
+        // Ejecutar al abrir la página y luego consultar cada 5 segundos
+        window.onload = () => {
+            autorastrearPedido();
+            setInterval(autorastrearPedido, 5000);
+        };
     </script>
 </body>
 </html>
