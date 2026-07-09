@@ -104,10 +104,31 @@
             background: #ccc;
             cursor: not-allowed;
         }
+        /* ESTILOS NUEVOS PARA EL BOTÓN DE RAPPI */
+        .btn-rappi { 
+            background: #FF473A; 
+            color: white; 
+            border: none; 
+            padding: 18px; 
+            border-radius: 30px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            width: 100%; 
+            margin-top: 15px; 
+            transition: background 0.3s;
+        }
+        .btn-rappi:hover {
+            background: #e03a2e;
+        }
+        .btn-rappi:disabled {
+            background: #ff9b94;
+            cursor: not-allowed;
+        }
         .link-volver {
             display: block;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 25px;
             color: var(--bk-texto);
             text-decoration: underline;
             font-weight: bold;
@@ -140,14 +161,18 @@
         <span id="total-carrito" style="color: var(--bk-rojo);">S/ 0.00</span>
     </div>
 
-    <button id="btn-pagar" class="btn-confirmar" onclick="finalizarPedido()">Confirmar y Pagar</button>
+    <button id="btn-pagar" class="btn-confirmar" onclick="finalizarPedido()">Confirmar y Pagar (Local)</button>
+    <!-- NUEVO BOTÓN DE RAPPI -->
+    <button id="btn-rappi" class="btn-rappi" onclick="finalizarPedidoRappi()">Pedir por Rappi</button>
     
     <a href="index.html" class="link-volver">← Volver al inicio</a>
 </div>
 
 <script>
-    // URL DE TU API DE PEDIDOS
+    // URL DE TUS APIS
     const API_PEDIDOS_URL = "https://3njp16b20g.execute-api.us-east-1.amazonaws.com";
+    // REEMPLAZA ESTA URL CON EL ENDPOINT DE TU API GATEWAY EN ORACLE CLOUD:
+    const ORACLE_RAPPI_URL = "https://jkmkzpy5ro6t4ang5burtxvyzu.apigateway.us-chicago-1.oci.customer-oci.com/rappi";
 
     // Recuperar carrito de la memoria
     let carrito = JSON.parse(localStorage.getItem("burger_carrito")) || [];
@@ -156,6 +181,7 @@
         const lista = document.getElementById("lista-carrito");
         const divVacio = document.getElementById("mensaje-vacio");
         const btnPagar = document.getElementById("btn-pagar");
+        const btnRappi = document.getElementById("btn-rappi");
         
         lista.innerHTML = "";
         let total = 0;
@@ -163,11 +189,13 @@
         if (carrito.length === 0) {
             divVacio.style.display = "block";
             btnPagar.disabled = true;
+            btnRappi.disabled = true; // También deshabilitamos Rappi si está vacío
             document.getElementById("total-carrito").innerText = `S/ 0.00`;
             return;
         } else {
             divVacio.style.display = "none";
             btnPagar.disabled = false;
+            btnRappi.disabled = false;
         }
 
         carrito.forEach((item, index) => {
@@ -192,6 +220,7 @@
         renderCarrito();
     }
 
+    // FLUJO NORMAL (AWS - Delivery Local)
     async function finalizarPedido() {
         const token = localStorage.getItem("burger_token");
         const usuario = localStorage.getItem("burger_usuario");
@@ -205,8 +234,10 @@
         if (carrito.length === 0) return;
 
         const btnPagar = document.getElementById("btn-pagar");
-        btnPagar.innerText = "Procesando pago... ⏳";
+        const btnRappi = document.getElementById("btn-rappi");
+        btnPagar.innerText = "Procesando pago...";
         btnPagar.disabled = true;
+        btnRappi.disabled = true; // Deshabilita el otro botón temporalmente
 
         const totalCalculado = carrito.reduce((sum, item) => sum + item.precio, 0);
 
@@ -218,12 +249,11 @@
                 total: totalCalculado
             };
 
-            // AQUÍ CONECTAMOS CON LA RUTA EXACTA DE TU SERVERLESS.YML
             const respuesta = await fetch(`${API_PEDIDOS_URL}/pedidos/crear`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` // Tu autorizador validará esto
+                    'Authorization': `Bearer ${token}` 
                 },
                 body: JSON.stringify(payload)
             });
@@ -231,27 +261,92 @@
             if (respuesta.ok) {
                 const datos = await respuesta.json();
                 
-                // --- NUEVA LÍNEA AGREGADA AQUÍ ---
-                // Guardamos el ID de este pedido como el "último" para rastrearlo automáticamente
                 localStorage.setItem("burger_ultimo_pedido_id", datos.pedido_id);
-                // ---------------------------------
-
-                alert(`¡Pago exitoso! 🍔🚀\nTu pedido ha sido enviado a la cocina.\nID de seguimiento: ${datos.pedido_id || 'Generado'}`);
                 
-                // Limpiar todo tras la compra
+                alert(`¡Pago exitoso!\nTu pedido ha sido enviado a la cocina.\nID de seguimiento: ${datos.pedido_id || 'Generado'}`);
+                
                 carrito = [];
                 localStorage.removeItem("burger_carrito");
                 renderCarrito();
                 
-                // Regresar a la portada (o podrías mandarlo directo a seguimiento.html)
                 window.location.href = "index.html";
-                
             }
             
         } catch (error) {
             console.error("Fallo de red:", error);
             alert("Hubo un error de conexión con tu API Gateway.");
-            btnPagar.innerText = "Confirmar y Pagar";
+            btnPagar.innerText = "Confirmar y Pagar (Local)";
+            btnPagar.disabled = false;
+            btnRappi.disabled = false;
+        }
+    }
+
+    // NUEVO FLUJO (ORACLE OCI - Rappi)
+    async function finalizarPedidoRappi() {
+        const token = localStorage.getItem("burger_token");
+        const usuario = localStorage.getItem("burger_usuario");
+
+        if (!token) {
+            alert("Debes iniciar sesión para realizar un pedido.");
+            window.location.href = "login.html";
+            return;
+        }
+
+        if (carrito.length === 0) return;
+
+        const btnPagar = document.getElementById("btn-pagar");
+        const btnRappi = document.getElementById("btn-rappi");
+        btnRappi.innerText = "Conectando con Rappi...";
+        btnRappi.disabled = true;
+        btnPagar.disabled = true; // Deshabilita el otro botón temporalmente
+
+        const totalCalculado = carrito.reduce((sum, item) => sum + item.precio, 0);
+
+        try {
+            const payload = {
+                usuario_id: usuario,
+                local_id: "STORE-001",
+                items: carrito,
+                total: totalCalculado
+            };
+
+            const respuesta = await fetch(ORACLE_RAPPI_URL, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    // Importante: Mandamos el token de AWS porque Oracle se lo reenviará a AWS
+                    'Authorization': `Bearer ${token}` 
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (respuesta.ok) {
+                const datos = await respuesta.json();
+                
+                // Como nuestra función de Oracle empaqueta la respuesta de AWS dentro de "aws_data"
+                const pedidoId = datos.aws_data ? datos.aws_data.pedido_id : (datos.pedido_id || 'Generado');
+                
+                localStorage.setItem("burger_ultimo_pedido_id", pedidoId);
+                
+                alert(`🛵 ¡Tu pedido fue recibido por Rappi!\nUn repartidor externo irá a BK por él.\nID de seguimiento: ${pedidoId}`);
+                
+                carrito = [];
+                localStorage.removeItem("burger_carrito");
+                renderCarrito();
+                
+                window.location.href = "index.html";
+            } else {
+                alert("Hubo un problema al procesar el pedido con Rappi.");
+                btnRappi.innerText = "Pedir por Rappi";
+                btnRappi.disabled = false;
+                btnPagar.disabled = false;
+            }
+            
+        } catch (error) {
+            console.error("Fallo de red conectando a OCI:", error);
+            alert("Hubo un error conectando con los servidores de Rappi.");
+            btnRappi.innerText = "Pedir por Rappi";
+            btnRappi.disabled = false;
             btnPagar.disabled = false;
         }
     }
