@@ -256,7 +256,9 @@
 
         async function confirmarRecepcion() {
             const pedidoId = localStorage.getItem("burger_ultimo_pedido_id");
-            const API_OPS_URL = "https://sqwflxek5k.execute-api.us-east-1.amazonaws.com";
+            
+            // ¡AQUÍ ESTÁ LA URL CORRECTA DE TU STEP FUNCTION!
+            const API_STEPFUNCTIONS_URL = "https://vdn00ei09c.execute-api.us-east-1.amazonaws.com";
 
             if (!confirm("¿Confirmas que ya tienes tu pedido en las manos?")) return;
 
@@ -266,8 +268,8 @@
             btn.disabled = true;
 
             try {
-                // Disparamos el evento hacia tu Lambda cambiar_estado.py
-                const res = await fetch(`${API_OPS_URL}/eventos/trigger`, {
+                // Hacemos el POST a la URL correcta
+                const res = await fetch(`${API_STEPFUNCTIONS_URL}/eventos/trigger`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
@@ -275,7 +277,7 @@
                         "detail-type": "ConfirmarPedidoCliente",
                         detail: {
                             order_id: pedidoId,
-                            status: "ENTREGADO", // Esto lo lee tu archivo cambiar_estado.py (línea 56)
+                            status: "ENTREGADO", 
                             empleado_id: "CLIENTE_WEB"
                         }
                     })
