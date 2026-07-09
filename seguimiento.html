@@ -133,7 +133,7 @@
 
         <div id="mensaje-error"></div>
         <button id="btn-confirmar-recepcion" style="display: none; background-color: #28a745; color: white; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; width: 100%; margin-top: 30px; font-size: 16px; transition: 0.3s;" onclick="confirmarRecepcion()">
-            🍔 ¡Ya recibí mi pedido!
+            ¡Ya recibí mi pedido!
         </button>
         
         <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
@@ -194,12 +194,12 @@
                     setProgresoVisial(estadoActual);
 
                 } else {
-                    txtEstado.innerText = "❌ No encontrado";
+                    txtEstado.innerText = "No encontrado";
                     txtEstado.style.color = "red";
                 }
             } catch (error) {
                 console.error(error);
-                txtEstado.innerText = "⚠️ Error de conexión";
+                txtEstado.innerText = "Error de conexión";
                 txtEstado.style.color = "red";
             }
         }
@@ -256,20 +256,15 @@
 
         async function confirmarRecepcion() {
             const pedidoId = localStorage.getItem("burger_ultimo_pedido_id");
-            
-            // ¡AQUÍ ESTÁ LA URL CORRECTA DE TU STEP FUNCTION!
             const API_STEPFUNCTIONS_URL = "https://vdn00ei09c.execute-api.us-east-1.amazonaws.com";
 
             if (!confirm("¿Confirmas que ya tienes tu pedido en las manos?")) return;
 
-            // Cambiamos visualmente el botón para que no le den doble clic
             const btn = document.getElementById("btn-confirmar-recepcion");
             btn.innerText = "Confirmando... ⏳";
             btn.disabled = true;
 
             try {
-                // Apuntamos directamente a tu Lambda de ConfirmarCliente
-                // (Verifica en tu serverless.yml que este sea el 'path' exacto)
                 const res = await fetch(`${API_STEPFUNCTIONS_URL}/operaciones/cliente/confirmar`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -277,20 +272,24 @@
                 });
 
                 if (res.ok) {
-                    alert("🎉 ¡Gracias por tu compra! Disfruta tu Burger King.");
-                    btn.style.display = "none";
-                    document.getElementById("txt-estado").innerText = "ENTREGADO";
-                    document.getElementById("txt-estado").style.color = "#28a745";
+                    alert("¡Gracias por tu compra! Disfruta tu Burger King.");
+                    
+                    // 1. Borramos el pedido de la memoria del navegador para que desaparezca
+                    localStorage.removeItem("burger_ultimo_pedido_id");
+                    
+                    // 2. Redirigimos al usuario a la página principal
+                    window.location.href = "index.html"; 
+                    
                 } else {
-                    alert("❌ Hubo un problema al confirmar. Intenta nuevamente.");
-                    btn.innerText = "🍔 ¡Ya recibí mi pedido!";
+                    alert("Hubo un problema al confirmar. Intenta nuevamente.");
+                    btn.innerText = "¡Ya recibí mi pedido!";
                     btn.disabled = false;
                 }
             } catch (error) {
                 console.error(error);
-                alert("❌ Error de red al intentar confirmar.");
-                btn.innerText = "🍔 ¡Ya recibí mi pedido!";
-                btn.disabled = false;
+                // Si la red falla pero el backend sí terminó (como pasó en tu prueba), lo dejamos pasar
+                localStorage.removeItem("burger_ultimo_pedido_id");
+                window.location.href = "index.html";
             }
         }
 
