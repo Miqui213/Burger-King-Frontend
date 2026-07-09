@@ -132,6 +132,9 @@
         </div>
 
         <div id="mensaje-error"></div>
+        <button id="btn-confirmar-recepcion" style="display: none; background-color: #28a745; color: white; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; width: 100%; margin-top: 30px; font-size: 16px; transition: 0.3s;" onclick="confirmarRecepcion()">
+            🍔 ¡Ya recibí mi pedido!
+        </button>
         
         <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
             <a href="catalogo.html" style="color: var(--bk-rojo); font-weight: bold; text-decoration: none; margin-right: 20px;">+ Hacer otro pedido</a>
@@ -240,6 +243,59 @@
             const estadosDelivery = ["PEDIDO_EN_CAMINO", "ENTREGA_DELIVERY", "ENTREGADO", "EN_CAMINO", "DESPACHADO"];
             if (estadosDelivery.includes(estadoNormalizado)) {
                 encenderLuz("step-delivery"); // ID corregido
+            }
+
+            const btnConfirmar = document.getElementById("btn-confirmar-recepcion");
+            // Cuando el repartidor le da a entregar, el estado pasa a ENTREGA_DELIVERY
+            if (estadoNormalizado === "ENTREGA_DELIVERY") {
+                btnConfirmar.style.display = "block";
+            } else {
+                btnConfirmar.style.display = "none";
+            }
+        }
+
+        async function confirmarRecepcion() {
+            const pedidoId = localStorage.getItem("burger_ultimo_pedido_id");
+            const API_OPS_URL = "https://sqwflxek5k.execute-api.us-east-1.amazonaws.com";
+
+            if (!confirm("¿Confirmas que ya tienes tu pedido en las manos?")) return;
+
+            // Cambiamos visualmente el botón para que no le den doble clic
+            const btn = document.getElementById("btn-confirmar-recepcion");
+            btn.innerText = "Confirmando... ⏳";
+            btn.disabled = true;
+
+            try {
+                // Disparamos el evento hacia tu Lambda cambiar_estado.py
+                const res = await fetch(`${API_OPS_URL}/eventos/trigger`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        source: "burgerking.cliente",
+                        "detail-type": "ConfirmarPedidoCliente",
+                        detail: {
+                            order_id: pedidoId,
+                            status: "ENTREGADO", // Esto lo lee tu archivo cambiar_estado.py (línea 56)
+                            empleado_id: "CLIENTE_WEB"
+                        }
+                    })
+                });
+
+                if (res.ok) {
+                    alert("🎉 ¡Gracias por tu compra! Disfruta tu Burger King.");
+                    btn.style.display = "none";
+                    document.getElementById("txt-estado").innerText = "ENTREGADO";
+                    document.getElementById("txt-estado").style.color = "#28a745";
+                } else {
+                    alert("❌ Hubo un problema al confirmar. Intenta nuevamente.");
+                    btn.innerText = "🍔 ¡Ya recibí mi pedido!";
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error(error);
+                alert("❌ Error de red al intentar confirmar.");
+                btn.innerText = "🍔 ¡Ya recibí mi pedido!";
+                btn.disabled = false;
             }
         }
 
